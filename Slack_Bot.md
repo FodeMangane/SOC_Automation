@@ -14,7 +14,7 @@
   4.	Ajouter les permissions suivantes : 
   o	chat:write : Pour envoyer des messages
   o	channels:read : Pour lire les informations des canaux
-  Étape 3 : Installation du Bot dans le workspace
+Étape 3 : Installation du Bot dans le workspace
   1.	Remonter en haut de la page OAuth & Permissions
   2.	Cliquer sur Install to Workspace
   3.	Autoriser les permissions demandées
