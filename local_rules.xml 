@@ -1,0 +1,83 @@
+<!-- Règles locales personnalisées -->
+<group name="local,syslog,attack,">
+
+  <!-- ===== Règles liées aux attaques SSH ===== -->
+
+  <!-- Détection de tentatives d'authentification SSH échouées (brute-force) -->
+  <rule id="100001" level="12">
+    <if_sid>5551</if_sid>
+    <match>authentication failure</match>
+    <description>Tentative de force brute SSH détectée — plusieurs échecs d'authentification</description>
+    <mitre>
+      <id>T1110.001</id>
+    </mitre>
+    <group>authentication_failures,</group>
+  </rule>
+
+  <!-- Connexion SSH réussie après des échecs précédents (suspicious) -->
+  <rule id="100002" level="10">
+    <if_sid>5501</if_sid>
+    <match>Accepted password</match>
+    <description>Connexion SSH réussie après échecs répétés — possible compromission</description>
+    <mitre>
+      <id>T1078</id>
+    </mitre>
+  </rule>
+
+  <!-- Utilisation de sudo (élévation de privilèges) -->
+  <rule id="100003" level="8">
+    <if_sid>5402</if_sid>
+    <match>sudo</match>
+    <description>Utilisation de sudo détectée — surveillance de l'élévation de privilèges</description>
+    <mitre>
+      <id>T1548.003</id>
+    </mitre>
+  </rule>
+
+  <!-- ===== Règles pour attaques web — injection SQL ===== -->
+
+  <!-- Détection possible d'outil sqlmap ou patterns d'injection dans l'URL -->
+  <rule id="100020" level="10">
+    <if_sid>31100,31101,31102,31103,31104,31105,31106</if_sid>
+    <url>sqlmap|' OR |UNION SELECT|INSERT INTO|DROP TABLE|0x[0-9a-f]+</url>
+    <description>Tentative d'injection SQL détectée dans l'URL</description>
+    <mitre>
+      <id>T1190</id>
+    </mitre>
+    <group>web_attack,attack,</group>
+  </rule>
+
+  <!-- Détection explicite d'une utilisation de l'outil automatisé SQLMap -->
+  <rule id="100021" level="12">
+    <if_sid>31100,31101,31102,31103,31104,31105,31106</if_sid>
+    <id>sqlmap</id>
+    <description>Outil automatisé (SQLMap) détecté — activité d'injection SQL</description>
+    <mitre>
+      <id>T1190</id>
+    </mitre>
+    <group>web_attack,automated_attack,</group>
+  </rule>
+
+  <!-- Signatures avancées d'injection ciblant différents SGBD -->
+  <rule id="100022" level="10">
+    <if_sid>31100,31101,31102,31103,31104,31105,31106</if_sid>
+    <url>DBMS_PIPE|CHR\(|CONCAT\(|utl_inaddr|WAITFOR DELAY</url>
+    <description>Technique d'injection SQL avancée détectée (Oracle/MySQL/MSSQL)</description>
+    <mitre>
+      <id>T1190</id>
+    </mitre>
+    <group>web_attack,</group>
+  </rule>
+
+  <!-- Règle de fréquence : plusieurs tentatives d'injection depuis la même IP -->
+  <rule id="100023" level="12" frequency="10" timeframe="60">
+    <if_matched_sid>100020</if_matched_sid>
+    <same_source_ip />
+    <description>Multiples tentatives d'injection SQL depuis la même adresse IP en 60 secondes</description>
+    <mitre>
+      <id>T1190</id>
+    </mitre>
+    <group>web_attack,</group>
+  </rule>
+
+</group>
